@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SpeakFlow">
+    <meta name="theme-color" content="#00F5D4">
+    <meta name="description" content="AI英语口语练习助手 - 帮你流利背诵英文文章">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230D1B2A' width='100' height='100' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='%2300F5D4'>🗣️</text></svg>">
+    <title>SpeakFlow - 英语口语练习助手</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0D1B2A;
+            --secondary: #1B263B;
+            --accent: #00F5D4;
+            --accent-red: #FF6B6B;
+            --text-primary: #E0E1DD;
+            --text-secondary: #778DA9;
+            --glow: 0 0 20px rgba(0, 245, 212, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 245, 212, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 107, 107, 0.05) 0%, transparent 50%),
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 100px,
+                    rgba(0, 245, 212, 0.02) 100px,
+                    rgba(0, 245, 212, 0.02) 200px
+                );
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 48px 0 32px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--secondary);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 245, 212, 0.1);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        /* Input Section */
+        .input-section {
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            background: var(--primary);
+            border: 2px solid rgba(0, 245, 212, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Crimson Pro', serif;
+            font-size: 20px;
+            color: var(--text-primary);
+            resize: vertical;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+
+        textarea::placeholder {
+            color: var(--text-secondary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+        }
+
+        .input-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .word-count {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .clear-btn {
+            background: transparent;
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .clear-btn:hover {
+            background: var(--accent-red);
+            color: var(--primary);
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            background: var(--primary);
+            border: 1px solid rgba(0, 245, 212, 0.2);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            padding: 0;
+            border: none;
+            background: var(--primary);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--glow);
+        }
+
+        .speed-display {
+            text-align: center;
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: var(--glow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid rgba(0, 245, 212, 0.3);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-record {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+            color: white;
+        }
+
+        .btn-record.recording {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Practice Section */
+        .practice-section {
+            display: none;
+        }
+
+        .practice-section.active {
+            display: block;
+        }
+
+        /* Sentence Display */
+        .sentence-display {
+            font-family: 'Crimson Pro', serif;
+            font-size: 28px;
+            line-height: 1.8;
+            text-align: center;
+            padding: 32px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .word {
+            display: inline-block;
+            padding: 4px 6px;
+            margin: 4px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            cursor: default;
+        }
+
+        .word.current {
+            background: var(--accent);
+            color: var(--primary);
+            transform: scale(1.1);
+            box-shadow: var(--glow);
+        }
+
+        .word.completed {
+            color: var(--accent);
+        }
+
+        .word.blank {
+            background: rgba(0, 245, 212, 0.1);
+            min-width: 60px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 24px 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--primary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #00D9FF);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Playback Controls */
+        .playback-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .play-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+            box-shadow: var(--glow);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .play-btn.playing {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .control-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--primary);
+            color: var(--text-primary);
+            border: 1px solid rgba(0, 245, 212, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Mode Indicator */
+        .mode-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mode-badge {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: var(--primary);
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .mode-badge.active {
+            background: rgba(0, 245, 212, 0.15);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Recognition Result */
+        .recognition-result {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .recognition-result.show {
+            display: block;
+        }
+
+        .recognition-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .recognition-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .match-score {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(0, 245, 212, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .stats-section.active {
+            display: block;
+        }
+
+        .stat-item {
+            display: inline-block;
+            margin: 0 24px;
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        /* Browser Support Warning */
+        .browser-warning {
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid var(--accent-red);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+            display: none;
+        }
+
+        .browser-warning.show {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .sentence-display {
+                font-size: 20px;
+                padding: 20px;
+            }
+
+            textarea {
+                font-size: 16px;
+                min-height: 150px;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 14px;
+            }
+
+            .play-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+
+            .control-btn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .action-buttons {
+                gap: 12px;
+            }
+
+            .stat-item {
+                display: block;
+                margin: 16px 0;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SpeakFlow</h1>
+            <p class="subtitle">你的 AI 英语口语教练</p>
+        </header>
+
+        <!-- Browser Support Warning -->
+        <div class="browser-warning" id="browserWarning">
+            您的浏览器不支持语音合成功能。建议使用 Chrome、Edge 或 Safari 浏览器以获得最佳体验。
+        </div>
+
+        <!-- Input Section -->
+        <section class="card input-section" id="inputSection">
+            <div class="card-title">输入英文文章</div>
+            <textarea id="textInput" placeholder="在此输入或粘贴你的英文文章...
+
+例如：The quick brown fox jumps over the lazy dog. This is a sample sentence for practice."></textarea>
+            <div class="input-footer">
+                <span class="word-count" id="wordCount">0 个单词 · 0 个字符</span>
+                <button class="clear-btn" id="clearBtn">清空</button>
+            </div>
+        </section>
+
+        <!-- Control Panel -->
+        <section class="card control-panel-section" id="controlSection">
+            <div class="card-title">练习设置</div>
+            <div class="control-panel">
+                <div class="control-group">
+                    <label class="control-label">练习模式</label>
+                    <select id="practiceMode">
+                        <option value="listen">跟读模式</option>
+                        <option value="memorize">背诵模式</option>
+                        <option value="blind">盲听模式</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">语速</label>
+                    <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="1">
+                    <div class="speed-display" id="speedDisplay">1.0x</div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">发音人</label>
+                    <select id="voiceSelect">
+                        <option value="">加载中...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="startBtn">
+                    <span>开始练习</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Practice Section -->
+        <section class="card practice-section" id="practiceSection">
+            <div class="mode-indicator">
+                <span class="mode-badge active" data-mode="normal">正常模式</span>
+                <span class="mode-badge" data-mode="memorize">背诵模式</span>
+                <span class="mode-badge" data-mode="blind">盲听模式</span>
+            </div>
+
+            <div class="sentence-display" id="sentenceDisplay">
+                点击播放开始练习...
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span id="currentSentence">句子 0 / 0</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="playback-controls">
+                <button class="control-btn" id="restartBtn" title="Restart">⟲</button>
+                <button class="control-btn" id="prevBtn" title="Previous">◀</button>
+                <button class="play-btn" id="playBtn" title="Play/Pause">▶</button>
+                <button class="control-btn" id="nextBtn" title="Next">▶</button>
+                <button class="control-btn btn-record" id="recordBtn" title="Record">🎤</button>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 20px;">
+                <button class="btn btn-secondary" id="backBtn">返回编辑</button>
+            </div>
+
+            <div class="recognition-result" id="recognitionResult">
+                <div class="recognition-label">你的录音：</div>
+                <div class="recognition-text" id="recognitionText"></div>
+                <div class="match-score" id="matchScore"></div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="card stats-section" id="statsSection">
+            <div class="card-title">练习完成！</div>
+            <div style="margin: 32px 0;">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalSentences">0</div>
+                    <div class="stat-label">练习句子数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalWords">0</div>
+                    <div class="stat-label">单词数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="practiceTime">0:00</div>
+                    <div class="stat-label">练习时长</div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="practiceAgainBtn">再次练习</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Application State
+        const state = {
+            sentences: [],
+            currentIndex: 0,
+            isPlaying: false,
+            isRecording: false,
+            practiceMode: 'normal',
+            speed: 1,
+            voice: null,
+            voices: [],
+            startTime: null,
+            totalPlayed: 0
+        };
+
+        // DOM Elements
+        const elements = {
+            textInput: document.getElementById('textInput'),
+            wordCount: document.getElementById('wordCount'),
+            clearBtn: document.getElementById('clearBtn'),
+            startBtn: document.getElementById('startBtn'),
+            speedSlider: document.getElementById('speedSlider'),
+            speedDisplay: document.getElementById('speedDisplay'),
+            voiceSelect: document.getElementById('voiceSelect'),
+            practiceMode: document.getElementById('practiceMode'),
+            inputSection: document.getElementById('inputSection'),
+            controlSection: document.getElementById('controlSection'),
+            practiceSection: document.getElementById('practiceSection'),
+            sentenceDisplay: document.getElementById('sentenceDisplay'),
+            playBtn: document.getElementById('playBtn'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            restartBtn: document.getElementById('restartBtn'),
+            recordBtn: document.getElementById('recordBtn'),
+            backBtn: document.getElementById('backBtn'),
+            currentSentence: document.getElementById('currentSentence'),
+            progressFill: document.getElementById('progressFill'),
+            progressPercent: document.getElementById('progressPercent'),
+            recognitionResult: document.getElementById('recognitionResult'),
+            recognitionText: document.getElementById('recognitionText'),
+            matchScore: document.getElementById('matchScore'),
+            statsSection: document.getElementById('statsSection'),
+            totalSentences: document.getElementById('totalSentences'),
+            totalWords: document.getElementById('totalWords'),
+            practiceTime: document.getElementById('practiceTime'),
+            practiceAgainBtn: document.getElementById('practiceAgainBtn'),
+            browserWarning: document.getElementById('browserWarning')
+        };
+
+        // Speech Synthesis (TTS)
+        let utterance = null;
+
+        function initVoices() {
+            state.voices = speechSynthesis.getVoices();
+            elements.voiceSelect.innerHTML = '';
+            
+            const englishVoices = state.voices.filter(v => v.lang.includes('en'));
+            const voicesToUse = englishVoices.length > 0 ? englishVoices : state.voices;
+            
+            voicesToUse.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                elements.voiceSelect.appendChild(option);
+            });
+
+            if (voicesToUse.length > 0) {
+                // Prefer US/UK English voice
+                const preferredVoice = voicesToUse.find(v => v.lang === 'en-US' || v.lang === 'en-GB') || voicesToUse[0];
+                elements.voiceSelect.value = preferredVoice.name;
+                state.voice = preferredVoice;
+            }
+        }
+
+        // Check browser support
+        function checkBrowserSupport() {
+            if (!('speechSynthesis' in window)) {
+                elements.browserWarning.classList.add('show');
+                elements.startBtn.disabled = true;
+            }
+        }
+
+        // Parse text into sentences
+        function parseText(text) {
+            // Split by sentence-ending punctuation
+            const sentences = text
+                .replace(/([.!?])\s*(?=[A-Z])/g, '$1|')
+                .split('|')
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+            return sentences;
+        }
+
+        // Parse sentence into words
+        function parseWords(sentence) {
+            return sentence.split(/\s+/).filter(w => w.length > 0);
+        }
+
+        // Update word count
+        function updateWordCount() {
+            const text = elements.textInput.value;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const chars = text.length;
+            elements.wordCount.textContent = `${words} 个单词 · ${chars} 个字符`;
+        }
+
+        // Render current sentence with word highlighting
+        function renderSentence() {
+            if (state.sentences.length === 0) {
+                elements.sentenceDisplay.textContent = '请输入一些英文文本开始练习！';
+                return;
+            }
+
+            const sentence = state.sentences[state.currentIndex];
+            const words = parseWords(sentence);
+
+            // Update progress
+            const progress = ((state.currentIndex + 1) / state.sentences.length) * 100;
+            elements.progressFill.style.width = `${progress}%`;
+            elements.progressPercent.textContent = `${Math.round(progress)}%`;
+            elements.currentSentence.textContent = `句子 ${state.currentIndex + 1} / ${state.sentences.length}`;
+
+            // Handle different display modes
+            if (state.practiceMode === 'blind') {
+                elements.sentenceDisplay.innerHTML = `<span class="word blank">🔊 播放中...</span>`;
+                speakSentence();
+                return;
+            }
+
+            if (state.practiceMode === 'memorize') {
+                elements.sentenceDisplay.innerHTML = `<span class="word blank">尝试回忆：点击显示</span>`;
+                elements.sentenceDisplay.style.cursor = 'pointer';
+                elements.sentenceDisplay.onclick = () => {
+                    elements.sentenceDisplay.style.cursor = 'default';
+                    elements.sentenceDisplay.onclick = null;
+                    renderSentenceNormal();
+                };
+                return;
+            }
+
+            renderSentenceNormal();
+        }
+
+        function renderSentenceNormal() {
+            const sentence = state.sentences[state.currentIndex];
+            const words = parseWords(sentence);
+            
+            elements.sentenceDisplay.innerHTML = words
+                .map((word, i) => `<span class="word" data-index="${i}">${word}</span>`)
+                .join('');
+            
+            speakSentence();
+        }
+
+        // Speak current sentence with word highlighting
+        function speakSentence() {
+            if (!('speechSynthesis' in window)) return;
+
+            speechSynthesis.cancel();
+
+            const sentence = state.sentences[state.currentIndex];
+            utterance = new SpeechSynthesisUtterance(sentence);
+
+            if (state.voice) {
+                utterance.voice = state.voice;
+            }
+
+            utterance.rate = state.speed;
+
+            // Word-by-word highlighting
+            const words = elements.sentenceDisplay.querySelectorAll('.word');
+            const wordCount = words.length;
+            const wordDuration = (utterance.duration || 5) / wordCount;
+
+            words.forEach((word, index) => {
+                setTimeout(() => {
+                    if (state.practiceMode !== 'normal') return;
+                    
+                    words.forEach(w => w.classList.remove('current'));
+                    if (word) word.classList.add('current');
+                }, index * wordDuration * 1000);
+            });
+
+            utterance.onend = () => {
+                state.isPlaying = false;
+                elements.playBtn.textContent = '▶';
+                elements.playBtn.classList.remove('playing');
+                
+                // Auto-advance to next sentence if enabled
+                if (state.currentIndex < state.sentences.length - 1) {
+                    // Wait a moment then move to next
+                } else {
+                    // End of practice
+                    showStats();
+                }
+            };
+
+            state.isPlaying = true;
+            elements.playBtn.textContent = '⏸';
+            elements.playBtn.classList.add('playing');
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // Speech Recognition (STT)
+        let recognition = null;
+
+        function initRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                elements.recordBtn.disabled = true;
+                elements.recordBtn.title = 'Speech recognition not supported';
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                showRecognitionResult(transcript);
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                stopRecording();
+            };
+
+            recognition.onend = () => {
+                stopRecording();
+            };
+        }
+
+        function toggleRecording() {
+            if (!recognition) {
+                initRecognition();
+                if (!recognition) return;
+            }
+
+            if (state.isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                state.isRecording = true;
+                elements.recordBtn.classList.add('recording');
+                elements.recordBtn.textContent = '⏹';
+            }
+        }
+
+        function stopRecording() {
+            state.isRecording = false;
+            elements.recordBtn.classList.remove('recording');
+            elements.recordBtn.textContent = '🎤';
+        }
+
+        function showRecognitionResult(text) {
+            elements.recognitionResult.classList.add('show');
+            elements.recognitionText.textContent = text;
+
+            // Calculate simple similarity score
+            const target = state.sentences[state.currentIndex].toLowerCase();
+            const spoken = text.toLowerCase();
+            
+            // Simple word matching
+            const targetWords = target.split(/\s+/);
+            const spokenWords = spoken.split(/\s+/);
+            let matches = 0;
+
+            spokenWords.forEach(word => {
+                if (targetWords.includes(word)) matches++;
+            });
+
+            const score = Math.round((matches / targetWords.length) * 100);
+            elements.matchScore.textContent = `匹配度：${score}%`;
+        }
+
+        // Navigation
+        function nextSentence() {
+            if (state.currentIndex < state.sentences.length - 1) {
+                state.currentIndex++;
+                renderSentence();
+            }
+        }
+
+        function prevSentence() {
+            if (state.currentIndex > 0) {
+                state.currentIndex--;
+                renderSentence();
+            }
+        }
+
+        function restartPractice() {
+            state.currentIndex = 0;
+            renderSentence();
+        }
+
+        // Show statistics
+        function showStats() {
+            const timeSpent = state.startTime ? Math.round((Date.now() - state.startTime) / 1000) : 0;
+            const minutes = Math.floor(timeSpent / 60);
+            const seconds = timeSpent % 60;
+
+            const totalWords = state.sentences.reduce((sum, s) => sum + parseWords(s).length, 0);
+
+            elements.totalSentences.textContent = state.sentences.length;
+            elements.totalWords.textContent = totalWords;
+            elements.practiceTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            elements.practiceSection.classList.remove('active');
+            elements.statsSection.classList.add('active');
+        }
+
+        // Mode switching
+        function setPracticeMode(mode) {
+            state.practiceMode = mode;
+            
+            document.querySelectorAll('.mode-badge').forEach(badge => {
+                badge.classList.remove('active');
+                if (badge.dataset.mode === mode) {
+                    badge.classList.add('active');
+                }
+            });
+
+            if (mode === 'memorize') {
+                // Show sentence briefly then hide
+                renderSentenceNormal();
+                setTimeout(() => {
+                    elements.sentenceDisplay.innerHTML = `<span class="word blank">点击显示原文</span>`;
+                    elements.sentenceDisplay.style.cursor = 'pointer';
+                    elements.sentenceDisplay.onclick = () => {
+                        elements.sentenceDisplay.style.cursor = 'default';
+                        elements.sentenceDisplay.onclick = null;
+                        renderSentenceNormal();
+                    };
+                }, 2000);
+            } else {
+                renderSentence();
+            }
+        }
+
+        // Event Listeners
+        elements.textInput.addEventListener('input', updateWordCount);
+
+        elements.clearBtn.addEventListener('click', () => {
+            elements.textInput.value = '';
+            updateWordCount();
+        });
+
+        elements.startBtn.addEventListener('click', () => {
+            const text = elements.textInput.value.trim();
+            if (!text) {
+                alert('请输入一些英文文本进行练习！');
+                return;
+            }
+
+            state.sentences = parseText(text);
+            state.currentIndex = 0;
+            state.startTime = Date.now();
+
+            if (state.sentences.length === 0) {
+                alert('无法从文本中解析出任何句子。');
+                return;
+            }
+
+            elements.inputSection.classList.add('hidden');
+            elements.controlSection.classList.add('hidden');
+            elements.practiceSection.classList.add('active');
+            elements.statsSection.classList.remove('active');
+
+            renderSentence();
+        });
+
+        elements.playBtn.addEventListener('click', () => {
+            if (state.isPlaying) {
+                speechSynthesis.cancel();
+                state.isPlaying = false;
+                elements.playBtn.textContent = '▶';
+                elements.playBtn.classList.remove('playing');
+            } else {
+                renderSentence();
+            }
+        });
+
+        elements.prevBtn.addEventListener('click', prevSentence);
+        elements.nextBtn.addEventListener('click', nextSentence);
+        elements.restartBtn.addEventListener('click', restartPractice);
+
+        elements.recordBtn.addEventListener('click', toggleRecording);
+
+        elements.backBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            state.isPlaying = false;
+            elements.practiceSection.classList.remove('active');
+            elements.inputSection.classList.remove('hidden');
+            elements.controlSection.classList.remove('hidden');
+        });
+
+        elements.speedSlider.addEventListener('input', (e) => {
+            state.speed = parseFloat(e.target.value);
+            elements.speedDisplay.textContent = `${state.speed.toFixed(1)}x`;
+        });
+
+        elements.voiceSelect.addEventListener('change', (e) => {
+            state.voice = state.voices.find(v => v.name === e.target.value);
+        });
+
+        document.querySelectorAll('.mode-badge').forEach(badge => {
+            badge.addEventListener('click', () => {
+                setPracticeMode(badge.dataset.mode);
+            });
+        });
+
+        elements.practiceAgainBtn.addEventListener('click', () => {
+            elements.statsSection.classList.remove('active');
+            elements.inputSection.classList.remove('hidden');
+            elements.controlSection.classList.remove('hidden');
+        });
+
+        // Initialize
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = initVoices;
+        }
+        
+        checkBrowserSupport();
+        initRecognition();
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+
+        // iOS PWA install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+    </script>
+</body>
+</html>
